@@ -11,8 +11,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   if (!empty($_POST['message'])) {
     $mysqli->query("insert into `messages` (`body`, `name`) values ('{$_POST['message']}','{$_POST['name']}')");
     $result_message = 'データベースに登録しました！';
-  }else{
+  }elseif(empty($_POST['message'])){  //メッセージが空の時
     $result_message = 'メッセージを入力してください...';
+  }else{  //名前が空の時
+    $result_message = '名前を入力してください...';
   }
 }
 
