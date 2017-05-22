@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   if (!empty($_POST['message'])) {
     $mysqli->query("insert into `messages` (`body`, `name`) values ('{$_POST['message']}','{$_POST['name']}')");
     $result_message = 'データベースに登録しました！';
-  } else {
+  }else{
     $result_message = 'メッセージを入力してください...';
   }
 }
@@ -29,14 +29,14 @@ $result = $mysqli->query('select * from `messages` order by `id` desc');
   <body>
     <p><?php echo $result_message; ?></p>
     <form action="board_name.php" method="post">
-      <?php echo "名前 : <br />"?><input type="text" name="name" size="30" /><?php echo "<br />"; ?>
-      <?php echo "<br />";?>
-      <?php echo "メッセージ : <br />"?><input type="text" name="message" size="30" /><?php echo "<br />";?>
-      <?php echo "<br />";?>
+      <?php echo "名前 : <br />"?><input type="text" name="name" size="30" /></br>
+    </br>
+      <?php echo "メッセージ : <br />"?><input type="text" name="message" size="30" /></br>
+    </br>
       <input type="submit" name="Submit" value="送信"/>
     </form>
 
-    <h2><?php echo "投稿一覧" ?></h2>
+    <h2>投稿一覧</h2>
 
     <table border="1" >
       <tr>
