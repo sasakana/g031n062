@@ -11,14 +11,13 @@ $result_message = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // メッセージと名前が空ではない時、フォームで受け取ったメッセージをデータベースに登録
   if ((!empty($_POST['message'])) and (!empty($_POST['name']))) {
-//名前、メッセージ、パスワードが特殊文字でも表示できるようにする
+//名前、メッセージが特殊文字でも表示できるようにする
     $body = $mysqli->real_escape_string($_POST['message']);
     $name = $mysqli->real_escape_string($_POST['name']);
-    $password = $mysqli->real_escape_string($_POST['password']);
 
     $mysqli->query("insert into `messages` (`body`, `name`, `password`)
-    values (('{$body}'),('{$name}'),('{$password}'))");
-    $result_message = 'データベースに登録しました！';
+    values (('{$body}'),('{$name}'),('{$_POST['message']}'))");
+    $result_message = 'メッセージを登録しました！';
   }elseif(empty($_POST['message'])){  //メッセージが空の時
     $result_message = 'メッセージを入力してください...';
   }else{  //名前が空の時
@@ -32,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     foreach($result as $row){
 //指定されたパスワードと入力したパスワードが一致し、編集するメッセージが入力されているとき
       if(($row['password'])===($_POST['pass']) and (!empty($_POST['body']))){
-//編集された文字が特殊文字でも表示できるようにする    
+//編集された文字が特殊文字でも表示できるようにする
         $body = $mysqli->real_escape_string($_POST['body']);
         $mysqli->query("update `messages` set body = ('{$body}') where `id` = {$_POST['ins']}");
         $result_message = 'メッセージを編集しました';
@@ -49,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   if (!empty($_POST['del'])) {
     $result = $mysqli->query("select * from `messages` where `id`={$_POST['del']}");
     foreach ($result as $row) {
-//指定されたパスワードと入力したパスワードが一致し、編集するメッセージが入力されているとき
+//指定されたパスワードと入力したパスワードが一致するとき
       if(($row['password'])===($_POST['pass'])){
         $mysqli->query("delete from `messages` where `id` = {$_POST['del']}");
         $result_message = 'メッセージを削除しました';
@@ -60,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   }
 }
 
-
+//idを降順に並び替え
 $result = $mysqli->query('select * from `messages` order by `id` desc');
 
 ?>
