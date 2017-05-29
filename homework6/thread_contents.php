@@ -13,7 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   // メッセージと名前が空ではない時、フォームで受け取ったメッセージをデータベースに登録
   if ((!empty($_POST['message'])) and (!empty($_POST['name'])and (!empty($_POST['password'])))) {
     //名前、メッセージが特殊文字でも表示できるようにする
-
     $message = htmlspecialchars($_POST['message']);
     $name = htmlspecialchars($_POST['name']);
     $password = htmlspecialchars($_POST['password']);
@@ -70,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   }
 }
 
-
 $query = "select `thread`.`thread_name`, messages.* from `thread` inner join `messages` on `thread`.`id` = `messages`.`thread_id`
 where `thread`.`id`={$_GET['id1']} order by `messages`.`id` desc";
 $result = $mysqli->query($query);
@@ -84,7 +82,6 @@ $result = $mysqli->query($query);
   </head>
 
   <body bgcolor="aliceblue">
-    <a href="thread.php">戻る</a>
     <center><h3><?php echo $result_message; ?></h3>
       <h3>投稿フォーム</h3>
       <table frame="hsides">
@@ -113,7 +110,7 @@ $result = $mysqli->query($query);
         <td><?php $body = htmlspecialchars($row['body']); ?>
           <span><?php echo $body; ?></span></td>
         <td>
-          <form action="thread_contents.php" method="post">
+          <form action="thread_contents.php?id1=<?php echo $_GET['id1'] ?>" method="post">
             編集内容<input type="text" name="body" /></br>
             パスワード<input type="password" name="pass" />
             <input type="hidden" name="ins" value="<?php echo $row['id']; ?>" />
@@ -122,7 +119,7 @@ $result = $mysqli->query($query);
         </td>
 
         <td>
-          <form action="thread_contents.php" method="post">
+          <form action="thread_contents.php?id1=<?php echo $_GET['id1'] ?>" method="post">
             パスワード<input type="password" name="pass" />
             <input type="hidden" name="del" value="<?php echo $row['id']; ?>" />
             <input type="submit" value="削除" />
@@ -131,7 +128,9 @@ $result = $mysqli->query($query);
         <td><?php echo $row['timestamp']; ?></br></td>
       </tr>
     <?php endforeach; ?>
-    </table>
+    </table></br>
+
+    <a href="thread.php">戻る</a>
 
   </body>
 </html>
