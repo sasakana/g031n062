@@ -10,21 +10,21 @@ $mysqli = new mysqli('localhost', $db_user, $db_pass, $db_name);
 $result_message = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   // メッセージと名前が空ではない時、フォームで受け取ったメッセージをデータベースに登録
-  if ((!empty($_POST['thread_name'])) and (!empty($_POST['thread_pass']))) {
+  if ((!empty($_POST['title'])) and (!empty($_POST['thread_pass']))) {
 
-    $thread_name = htmlspecialchars($_POST['thread_name']);
+    $thread_name = htmlspecialchars($_POST['title']);
     $thread_pass = htmlspecialchars($_POST['thread_pass']);
 
-    $thread_name = $mysqli->real_escape_string($_POST['thread_name']);
+    $title = $mysqli->real_escape_string($_POST['title']);
     $thread_pass = $mysqli->real_escape_string($_POST['thread_pass']);
 
-    $mysqli->query("insert into `thread` (`thread_name`, `thread_pass`)
-    values (('{$thread_name}'),('{$thread_pass}'))");
+    $mysqli->query("insert into `thread` (`title`, `thread_pass`)
+    values (('{$title}'),('{$thread_pass}'))");
     $result_message = 'スレッドを追加しました！';
-  }elseif(empty($_POST['thread_name'])){
-    $result_message = 'スレッド名を入力してください...';
+  }elseif(empty($_POST['title'])){
+    $result_message = 'スレッド名を入力してください';
   }else{
-    $result_message = 'パスワードを入力してください...';
+    $result_message = 'パスワードを入力してください';
   }
 
   //削除
@@ -35,8 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       if(($row['thread_pass'])===($_POST['pass'])){
         $mysqli->query("delete from `thread` where `id` = {$_POST['del']}");
         $result_message = 'スレッドを削除しました';
+      }elseif(empty($_POST['pass'])){  //パスワードが空の時
+        $result_message = 'パスワードを入力してください';
       }else{  //指定されたパスワードと入力したパスワードが一致しないとき
-        $result_message = 'パスワードが間違っています。';
+        $result_message = 'パスワードが間違っています';
       }
     }
   }
@@ -58,7 +60,7 @@ $result = $mysqli->query('select * from `thread` order by `id` desc');
     <table frame="hsides">
       <tr>
         <td><form action="thread.php" method="post">
-          スレッド名 : </br><input type="text" name="thread_name" size="30" /></br>
+          スレッド名 : </br><input type="text" name="title" size="30" /></br>
           パスワード : </br><input type="password" name="thread_pass" size="30" /></br>
           <input type="submit" name="Submit" value="送信"/>
         </form></td>
@@ -75,9 +77,9 @@ $result = $mysqli->query('select * from `thread` order by `id` desc');
     <?php foreach ($result as $row) : ?>
       <tr>
         <td>
-          <a href="thread_contents.php?thread_id=<?php echo $row['id']; ?>&thread_name=<?php echo $row['thread_name']; ?>">
-            <?php $thread_name = htmlspecialchars($row['thread_name']); ?>
-            <span><?php echo $thread_name; ?></span>
+          <a href="thread_contents.php?thread_id=<?php echo $row['id']; ?>&title=<?php echo $row['title']; ?>">
+            <?php $title = htmlspecialchars($row['title']); ?>
+            <span><?php echo $title; ?></span>
 
           </a>
         </td>

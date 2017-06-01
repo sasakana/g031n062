@@ -21,35 +21,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $mysqli->real_escape_string($_POST['name']);
     $password = $mysqli->real_escape_string($_POST['password']);
 
-    $mysqli->query("insert into `messages` (`body`, `name`, `password`,`thread_id`)
-    values (('{$body}'),('{$name}'),('{$password}'),('{$_GET['thread_id']}'))");
+    $mysqli->query("insert into `messages` (`message`, `name`, `password`,`thread_id`)
+    values (('{$message}'),('{$name}'),('{$password}'),('{$_GET['thread_id']}'))");
     $result_message = 'メッセージを登録しました！';
   }elseif(empty($_POST['message'])){  //メッセージが空の時
-    $result_message = 'メッセージを入力してください...';
+    $result_message = 'メッセージを入力してください';
   }elseif(empty($_POST['name'])){  //名前が空の時
-    $result_message = '名前を入力してください...';
+    $result_message = '名前を入力してください';
   }else{  //名前が空の時
-    $result_message = 'パスワードを入力してください...';
+    $result_message = 'パスワードを入力してください';
   }
 
 
   //編集
-  if (!empty($_POST['ins'])) {
-    $result = $mysqli->query("select * from `messages` where `id`={$_POST['ins']}");
+  if (!empty($_POST['up'])) {
+    $result = $mysqli->query("select * from `messages` where `id`={$_POST['up']}");
     foreach($result as $row){
       //指定されたパスワードと入力したパスワードが一致し、編集するメッセージが入力されているとき
-      if(($row['password'])===($_POST['pass']) and (!empty($_POST['body']))){
+      if(($row['password'])===($_POST['pass']) and (!empty($_POST['message']))){
 
-        $body = htmlspecialchars($_POST['body']);
+        $message = htmlspecialchars($_POST['message']);
 
         //編集された文字が特殊文字でも表示できるようにする
-        $body = $mysqli->real_escape_string($_POST['body']);
-        $mysqli->query("update `messages` set body = ('{$body}') where `id` = {$_POST['ins']}");
+        $body = $mysqli->real_escape_string($_POST['message']);
+        $mysqli->query("update `messages` set message = ('{$message}') where `id` = {$_POST['up']}");
         $result_message = 'メッセージを編集しました';
+      }elseif(empty($_POST['message'])){  //メッセージが空の時
+        $result_message = '編集するメッセージを入力してください';
+      }elseif(empty($_POST['pass'])){  //パスワードが空の時
+        $result_message = 'パスワードを入力してください';
       }elseif (($row['password'])!=($_POST['pass'])){  //指定されたパスワードと入力したパスワードが一致しないとき
         $result_message = 'パスワードが間違っています';
       }else{  //指定されたパスワードと入力したパスワードは一致するが、メッセージが入力されていないとき
-        $result_message = '編集するメッセージを入力してください。';
+        $result_message = '編集するメッセージを入力してください';
       }
     }
   }
@@ -63,14 +67,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       if(($row['password'])===($_POST['pass'])){
         $mysqli->query("delete from `messages` where `id` = {$_POST['del']}");
         $result_message = 'メッセージを削除しました';
+      }elseif(empty($_POST['pass'])){  //名前が空の時
+        $result_message = 'パスワードを入力してください';
       }else{  //指定されたパスワードと入力したパスワードが一致しないとき
-        $result_message = 'パスワードが間違っています。';
+        $result_message = 'パスワードが間違っています';
       }
     }
   }
 }
 
-$query = "select `thread`.`thread_name`, messages.* from `thread` inner join `messages` on `thread`.`id` = `messages`.`thread_id`
+$query = "select `thread`.`title`, messages.* from `thread` inner join `messages` on `thread`.`id` = `messages`.`thread_id`
 where `thread`.`id`={$_GET['thread_id']} order by `messages`.`id` desc";
 $result = $mysqli->query($query);
 
@@ -84,12 +90,12 @@ $result = $mysqli->query($query);
 
   <body bgcolor="aliceblue">
     <center>
-      <h3><?php echo "【". $_GET['thread_name']."】のページ"; ?></h3>
+      <h2><?php echo "【". $_GET['title']."】のページ"; ?></h2>
       <h3><?php echo $result_message; ?></h3>
       <h3>投稿フォーム</h3>
       <table frame="hsides">
         <tr>
-          <td><form action ="thread_contents.php?thread_id=<?php echo $_GET['thread_id'] ?>&thread_name=<?php echo $_GET['thread_name']; ?>" method="post">
+          <td><form action ="thread_contents.php?thread_id=<?php echo $_GET['thread_id'] ?>&title=<?php echo $_GET['title']; ?>" method="post">
             名前：</br><input type="text" name="name" size="30" /></br>
             投稿内容：</br><input type="text" name="message" size="30" /></br>
             パスワード：</br><input type="password" name="password" size="30" /></br>
@@ -100,7 +106,7 @@ $result = $mysqli->query($query);
       </table>
     </center>
 
-    <h3><?php echo $thread_name; ?>投稿一覧</h3>
+    <h3>投稿一覧</h3>
 
     <table border="1" >
       <tr>
@@ -110,19 +116,19 @@ $result = $mysqli->query($query);
     <?php foreach ($result as $row) : ?>
       <tr>
         <td><?php echo $row['name']; ?></td>
-        <td><?php $body = htmlspecialchars($row['body']); ?>
-          <span><?php echo $body; ?></span></td>
+        <td><?php $message = htmlspecialchars($row['message']); ?>
+          <span><?php echo $message; ?></span></td>
         <td>
-          <form action="thread_contents.php?thread_id=<?php echo $_GET['thread_id'] ?>&thread_name=<?php echo $_GET['thread_name']; ?>" method="post">
-            編集内容<input type="text" name="body" /></br>
+          <form action="thread_contents.php?thread_id=<?php echo $_GET['thread_id'] ?>&title=<?php echo $_GET['title']; ?>" method="post">
+            編集内容<input type="text" name="message" /></br>
             パスワード<input type="password" name="pass" />
-            <input type="hidden" name="ins" value="<?php echo $row['id']; ?>" />
+            <input type="hidden" name="up" value="<?php echo $row['id']; ?>" />
             <input type="submit" value="編集" />
           </form>
         </td>
 
         <td>
-          <form action="thread_contents.php?thread_id=<?php echo $_GET['thread_id'] ?>&thread_name=<?php echo $_GET['thread_name']; ?>" method="post">
+          <form action="thread_contents.php?thread_id=<?php echo $_GET['thread_id'] ?>&title=<?php echo $_GET['title']; ?>" method="post">
             パスワード<input type="password" name="pass" />
             <input type="hidden" name="del" value="<?php echo $row['id']; ?>" />
             <input type="submit" value="削除" />
