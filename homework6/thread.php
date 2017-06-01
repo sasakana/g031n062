@@ -13,10 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   if ((!empty($_POST['thread_name'])) and (!empty($_POST['thread_pass']))) {
 
     $thread_name = htmlspecialchars($_POST['thread_name']);
+    $thread_pass = htmlspecialchars($_POST['thread_pass']);
+
     $thread_name = $mysqli->real_escape_string($_POST['thread_name']);
+    $thread_pass = $mysqli->real_escape_string($_POST['thread_pass']);
 
     $mysqli->query("insert into `thread` (`thread_name`, `thread_pass`)
-    values (('{$thread_name}'),('{$_POST['thread_pass']}'))");
+    values (('{$thread_name}'),('{$thread_pass}'))");
     $result_message = 'スレッドを追加しました！';
   }elseif(empty($_POST['thread_name'])){
     $result_message = 'スレッド名を入力してください...';
@@ -72,7 +75,7 @@ $result = $mysqli->query('select * from `thread` order by `id` desc');
     <?php foreach ($result as $row) : ?>
       <tr>
         <td>
-          <a href="thread_contents.php?id1=<?php echo $row['id']; ?>">
+          <a href="thread_contents.php?thread_id=<?php echo $row['id']; ?>&thread_name=<?php echo $row['thread_name']; ?>">
             <?php $thread_name = htmlspecialchars($row['thread_name']); ?>
             <span><?php echo $thread_name; ?></span>
 

@@ -19,9 +19,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $body = $mysqli->real_escape_string($_POST['message']);
     $name = $mysqli->real_escape_string($_POST['name']);
+    $password = $mysqli->real_escape_string($_POST['password']);
 
     $mysqli->query("insert into `messages` (`body`, `name`, `password`,`thread_id`)
-    values (('{$body}'),('{$name}'),('{$_POST['password']}'),('{$_GET['id1']}'))");
+    values (('{$body}'),('{$name}'),('{$password}'),('{$_GET['thread_id']}'))");
     $result_message = 'メッセージを登録しました！';
   }elseif(empty($_POST['message'])){  //メッセージが空の時
     $result_message = 'メッセージを入力してください...';
@@ -70,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 $query = "select `thread`.`thread_name`, messages.* from `thread` inner join `messages` on `thread`.`id` = `messages`.`thread_id`
-where `thread`.`id`={$_GET['id1']} order by `messages`.`id` desc";
+where `thread`.`id`={$_GET['thread_id']} order by `messages`.`id` desc";
 $result = $mysqli->query($query);
 
 
@@ -82,11 +83,13 @@ $result = $mysqli->query($query);
   </head>
 
   <body bgcolor="aliceblue">
-    <center><h3><?php echo $result_message; ?></h3>
+    <center>
+      <h3><?php echo "【". $_GET['thread_name']."】のページ"; ?></h3>
+      <h3><?php echo $result_message; ?></h3>
       <h3>投稿フォーム</h3>
       <table frame="hsides">
         <tr>
-          <td><form action ="thread_contents.php?id1=<?php echo $_GET['id1'] ?>" method="post">
+          <td><form action ="thread_contents.php?thread_id=<?php echo $_GET['thread_id'] ?>&thread_name=<?php echo $_GET['thread_name']; ?>" method="post">
             名前：</br><input type="text" name="name" size="30" /></br>
             投稿内容：</br><input type="text" name="message" size="30" /></br>
             パスワード：</br><input type="password" name="password" size="30" /></br>
@@ -97,7 +100,7 @@ $result = $mysqli->query($query);
       </table>
     </center>
 
-    <h3>投稿一覧</h3>
+    <h3><?php echo $thread_name; ?>投稿一覧</h3>
 
     <table border="1" >
       <tr>
@@ -110,7 +113,7 @@ $result = $mysqli->query($query);
         <td><?php $body = htmlspecialchars($row['body']); ?>
           <span><?php echo $body; ?></span></td>
         <td>
-          <form action="thread_contents.php?id1=<?php echo $_GET['id1'] ?>" method="post">
+          <form action="thread_contents.php?thread_id=<?php echo $_GET['thread_id'] ?>&thread_name=<?php echo $_GET['thread_name']; ?>" method="post">
             編集内容<input type="text" name="body" /></br>
             パスワード<input type="password" name="pass" />
             <input type="hidden" name="ins" value="<?php echo $row['id']; ?>" />
@@ -119,7 +122,7 @@ $result = $mysqli->query($query);
         </td>
 
         <td>
-          <form action="thread_contents.php?id1=<?php echo $_GET['id1'] ?>" method="post">
+          <form action="thread_contents.php?thread_id=<?php echo $_GET['thread_id'] ?>&thread_name=<?php echo $_GET['thread_name']; ?>" method="post">
             パスワード<input type="password" name="pass" />
             <input type="hidden" name="del" value="<?php echo $row['id']; ?>" />
             <input type="submit" value="削除" />
