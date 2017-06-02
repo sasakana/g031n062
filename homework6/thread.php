@@ -5,14 +5,14 @@ $db_name = 'bbs';     // データベース名
 
 // MySQLに接続
 $mysqli = new mysqli('localhost', $db_user, $db_pass, $db_name);
-
+$mysqli->set_charset('utf8');
 
 $result_message = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   // メッセージと名前が空ではない時、フォームで受け取ったメッセージをデータベースに登録
   if ((!empty($_POST['title'])) and (!empty($_POST['thread_pass']))) {
 
-    $thread_name = htmlspecialchars($_POST['title']);
+    $title = htmlspecialchars($_POST['title']);
     $thread_pass = htmlspecialchars($_POST['thread_pass']);
 
     $title = $mysqli->real_escape_string($_POST['title']);

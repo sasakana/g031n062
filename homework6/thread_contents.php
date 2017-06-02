@@ -6,7 +6,7 @@ $db_name = 'bbs';     // データベース名
 
 // MySQLに接続
 $mysqli = new mysqli('localhost', $db_user, $db_pass, $db_name);
-
+$mysqli->set_charset('utf8');
 
 $result_message = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
