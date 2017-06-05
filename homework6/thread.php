@@ -12,19 +12,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   // メッセージと名前が空ではない時、フォームで受け取ったメッセージをデータベースに登録
   if ((!empty($_POST['title'])) and (!empty($_POST['thread_pass']))) {
 
+    //名前、メッセージが特殊文字でも表示できるようにする
     $title = htmlspecialchars($_POST['title']);
     $thread_pass = htmlspecialchars($_POST['thread_pass']);
 
+    //SQLインジェクション対策
     $title = $mysqli->real_escape_string($_POST['title']);
     $thread_pass = $mysqli->real_escape_string($_POST['thread_pass']);
 
     $mysqli->query("insert into `thread` (`title`, `thread_pass`)
     values (('{$title}'),('{$thread_pass}'))");
     $result_message = 'スレッドを追加しました！';
-  }elseif(empty($_POST['title'])){
+  }elseif(empty($_POST['title'])){  //スレッド名が空の時
     $result_message = 'スレッド名を入力してください';
-  }else{
+  }elseif(empty($_POST['thread_pass'])){  //パスワードが空の時
     $result_message = 'パスワードを入力してください';
+  }else{  //指定されたパスワードと入力したパスワードが一致しないとき
+    $result_message = 'パスワードが間違っています';
   }
 
   //削除
@@ -37,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $result_message = 'スレッドを削除しました';
       }elseif(empty($_POST['pass'])){  //パスワードが空の時
         $result_message = 'パスワードを入力してください';
-      }else{  //指定されたパスワードと入力したパスワードが一致しないとき
+      }elseif(($row['thread_pass'])!=($_POST['pass'])){  //指定されたパスワードと入力したパスワードが一致しないとき
         $result_message = 'パスワードが間違っています';
       }
     }
@@ -80,10 +84,8 @@ $result = $mysqli->query('select * from `thread` order by `id` desc');
           <a href="thread_contents.php?thread_id=<?php echo $row['id']; ?>&title=<?php echo $row['title']; ?>">
             <?php $title = htmlspecialchars($row['title']); ?>
             <span><?php echo $title; ?></span>
-
           </a>
         </td>
-
         <td>
           <form action="thread.php" method="post" >
             <input type="password" name="pass" />
@@ -91,7 +93,6 @@ $result = $mysqli->query('select * from `thread` order by `id` desc');
             <input type="submit" value="削除" />
           </form>
         </td>
-
         <td><?php echo $row['thread_time'];?></br></td>
       </tr>
     <?php endforeach; ?>

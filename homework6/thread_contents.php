@@ -17,7 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = htmlspecialchars($_POST['name']);
     $password = htmlspecialchars($_POST['password']);
 
-    $body = $mysqli->real_escape_string($_POST['message']);
+    //SQLインジェクション対策
+    $message = $mysqli->real_escape_string($_POST['message']);
     $name = $mysqli->real_escape_string($_POST['name']);
     $password = $mysqli->real_escape_string($_POST['password']);
 
@@ -28,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $result_message = 'メッセージを入力してください';
   }elseif(empty($_POST['name'])){  //名前が空の時
     $result_message = '名前を入力してください';
-  }else{  //名前が空の時
+  }else{  //パスワードが違うとき
     $result_message = 'パスワードを入力してください';
   }
 
@@ -40,10 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       //指定されたパスワードと入力したパスワードが一致し、編集するメッセージが入力されているとき
       if(($row['password'])===($_POST['pass']) and (!empty($_POST['message']))){
 
+        //編集された文字が特殊文字でも表示できるようにする
         $message = htmlspecialchars($_POST['message']);
 
-        //編集された文字が特殊文字でも表示できるようにする
-        $body = $mysqli->real_escape_string($_POST['message']);
+        //SQLインジェクション対策
+        $message = $mysqli->real_escape_string($_POST['message']);
+
         $mysqli->query("update `messages` set message = ('{$message}') where `id` = {$_POST['up']}");
         $result_message = 'メッセージを編集しました';
       }elseif(empty($_POST['message'])){  //メッセージが空の時
@@ -67,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       if(($row['password'])===($_POST['pass'])){
         $mysqli->query("delete from `messages` where `id` = {$_POST['del']}");
         $result_message = 'メッセージを削除しました';
-      }elseif(empty($_POST['pass'])){  //名前が空の時
+      }elseif(empty($_POST['pass'])){  //パスワードが空の時
         $result_message = 'パスワードを入力してください';
       }else{  //指定されたパスワードと入力したパスワードが一致しないとき
         $result_message = 'パスワードが間違っています';
@@ -76,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   }
 }
 
+//内部結合し、idを降順に並び替え
 $query = "select `thread`.`title`, messages.* from `thread` inner join `messages` on `thread`.`id` = `messages`.`thread_id`
 where `thread`.`id`={$_GET['thread_id']} order by `messages`.`id` desc";
 $result = $mysqli->query($query);
